@@ -83,7 +83,35 @@ public:
 
 class YM2149F
 {
+protected:
+	YM2149F_Tone _tone[3];
+	YM2149F_Noise _noise;
+	YM2149F_Envelope _env;
 
+	uint8_t _regs[16];
+
+	uint8_t mixer() const { return _regs[7] & 0x3f; }
+	int level_a() const {	if (_regs[8] & 0x10) return _env.output();
+							else return (_regs[8] << 1) + (_regs[8] == 0)?0:1; }
+	int level_b() const {	if (_regs[9] & 0x10) return _env.output();
+							else return (_regs[9] << 1) + (_regs[9] == 0)?0:1; }
+	int level_c() const {	if (_regs[10] & 0x10) return _env.output();
+							else return (_regs[10] << 1) + (_regs[10] == 0)?0:1; }
+	int level_ch(int ch) const
+	{
+		if (_regs[8+ch] & 0x10) return _env.output();
+		else return (_regs[8+ch] << 1) + (_regs[8+ch] == 0)?0:1;
+	}
+	double sample_ch(int ch) const;
+public:
+	YM2149F() = default;
+
+	void clock(int cycles);
+	void write(uint8_t reg, uint8_t val);
+	uint8_t read(uint8_t reg) const { return _regs[reg]; }
+	double sample_a() const;
+	double sample_b() const;
+	double sample_c() const;
 };
 
 
