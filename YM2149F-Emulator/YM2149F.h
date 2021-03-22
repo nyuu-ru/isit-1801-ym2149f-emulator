@@ -83,6 +83,8 @@ public:
 
 class YM2149F
 {
+public:
+	static constexpr int MASTER_FREQ = 3579545 / 2;
 protected:
 	YM2149F_Tone _tone[3];
 	YM2149F_Noise _noise;
@@ -100,7 +102,7 @@ protected:
 	int level_ch(int ch) const
 	{
 		if (_regs[8+ch] & 0x10) return _env.output();
-		else return (_regs[8+ch] << 1) + (_regs[8+ch] == 0)?0:1;
+		else return (_regs[8+ch] << 1) + ((_regs[8+ch] == 0)?0:1);
 	}
 	double sample_ch(int ch) const;
 public:

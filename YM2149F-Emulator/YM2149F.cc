@@ -122,22 +122,22 @@ void YM2149F::write(uint8_t reg, uint8_t val)
 	switch (reg) {
 	case 0:
 	case 1:
-		_tone[0].set_period( (uint16_t(_regs[0]) + uint16_t(_regs[1])<<8) & 0x0fff );
+		_tone[0].set_period( (uint16_t(_regs[0]) + (uint16_t(_regs[1])<<8)) & 0x0fff );
 		break;
 	case 2:
 	case 3:
-		_tone[1].set_period( (uint16_t(_regs[2]) + uint16_t(_regs[3])<<8) & 0x0fff );
+		_tone[1].set_period( (uint16_t(_regs[2]) + (uint16_t(_regs[3])<<8)) & 0x0fff );
 		break;
 	case 4:
 	case 5:
-		_tone[2].set_period( (uint16_t(_regs[4]) + uint16_t(_regs[5])<<8) & 0x0fff );
+		_tone[2].set_period( (uint16_t(_regs[4]) + (uint16_t(_regs[5])<<8)) & 0x0fff );
 		break;
 	case 6:
 		_noise.set_period(_regs[6] & 0x1f);
 		break;
 	case 11:
 	case 12:
-		_env.set_period( uint16_t(_regs[11]) + uint16_t(_regs[12]) << 8 );
+		_env.set_period( uint16_t(_regs[11]) + (uint16_t(_regs[12]) << 8) );
 		break;
 	case 13:
 		_env.set_mode(_regs[13] & 0x0f);
