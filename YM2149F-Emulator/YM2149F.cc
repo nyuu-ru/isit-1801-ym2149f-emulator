@@ -30,3 +30,85 @@ void YM2149F_Noise::clock(int cycles)
 	}
 }
 
+void YM2149F_Tone::clock(int cycles)
+{
+	_clock_counter += cycles;
+
+	while (_clock_counter >= 8) {
+		_clock_counter -= 8;
+
+		if (_period_counter > 0)
+			_period_counter--;
+		else {
+			_period_counter = _period;
+
+			_output = not _output;
+		}
+	}
+}
+
+/*
+
+	CNT ATT	ALT	HLD	|	NRM	INV	HLD
+	0	0	x	x		31	x	0
+	0	1	x	x		0	x	0
+	1	0	0	0		31	x	x
+	1	0	0	1		31	x	0
+	1	0	1	0		31	0	x
+	1	0	1	1		31	x	31
+	1	1	0	0		0	x	x
+	1	1	0	1		0	x	31
+	1	1	1	0		0	31	x
+	1	1	1	1		0	x	0
+
+	cont() and (not att() xor alt() xor hold())
+	(att() xor alt()) and cont()
+ */
+
+void YM2149F_Envelope::clock(int cycles)
+{
+	_clock_counter += cycles;
+
+	while (_clock_counter >= 8) {
+		_clock_counter -= 8;
+
+		if (_period_counter > 0)
+			_period_counter--;
+		else {
+			_period_counter = _period;
+
+			switch (_state) {
+			case State::NORM:
+				if (att()) _output++; else _output--;
+
+				if (_output < 0 or _output >= 32) {
+					_output = (cont() and (not att() xor alt() xor hold())) ?
+								31 : 0;
+					if (hold() or not cont()) _state = State::HOLD;
+					else if (alt()) _state = State::INV;
+				}
+				break;
+			case State::INV:
+				if (att()) _output--; else _output++;
+
+				if (_output < 0 or _output >= 32) {
+					_output = att() ? 0 : 31;
+					_state = State::NORM;
+				}
+				break;
+			case State::HOLD:
+				_output = ((att() xor alt()) and cont()) ? 31 : 0;
+				break;
+			default:
+				; // В эту ветку мы попасть не должны
+			}
+		}
+	}
+
+}
+
+
+
+
+
+
